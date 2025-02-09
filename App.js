@@ -10,7 +10,6 @@ const port = 80;
 
 const heatmap = {};
 
-// Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
@@ -25,27 +24,21 @@ app.get('/dig-it/heatmap/data', (req, res) => {
     res.json(heatmap);
 });
 
-app.post('/submit', (req, res) => {
-    const heatmapCollection = req.body;
-    console.log(heatmapCollection);
-    for (let i = 0; i < heatmapCollection.length; i++) {
-        const playerData = heatmapCollection[i];
-        const playerId = playerData.id;
-        heatmap[playerId] = { x: playerData.x, z: playerData.z };
+app.post('/dig-it/heatmap/submit', express.raw({ type: '*/*' }), (req, res) => {
+    const data = req.body;
+    for (let i = 0; i < data.length; i += 12) {
+        const playerId = data.readDoubleLE(i);
+        const x = data.readInt16LE(i + 8);
+        const z = data.readInt16LE(i + 10);
+        heatmap[playerId] = { x, z };
     }
-
     res.json({ message: "Ok" });
 });
 
-app.post('/remove', (req, res) => {
-    const playerId = req.body.id;
-    if (heatmap[playerId]) {
-        console.log(`Removing player ${playerId} from heatmap`);
-        delete heatmap[playerId];
-        res.json({ message: `Player ${playerId} removed from heatmap` });
-    } else {
-        res.status(404).json({ message: `Player ${playerId} not found in heatmap` });
-    }
+app.post('/dig-it/heatmap/remove', express.raw({ type: '*/*' }), (req, res) => {
+    const playerId = req.body.readDoubleLE(0);
+    delete heatmap[playerId];
+    res.json({ message: "Ok" });
 });
 
 app.listen(port, '45.143.196.245', () => {
