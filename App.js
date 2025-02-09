@@ -30,7 +30,7 @@ app.post('/dig-it/heatmap/submit'
     console.log(data);
 
     for (let i = 0; i < data.length; i += 12) {
-        const playerId = data.readDoubleBE(i);
+        const playerId = data.readFloatBE(i);
         const x = data.readInt16BE(i + 8);
         const z = data.readInt16BE(i + 10);
 
