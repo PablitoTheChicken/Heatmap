@@ -34,6 +34,13 @@
             // Draw the map image
             ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
 
+            // Create an offscreen canvas for density calculation
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+            const offscreenCtx = offscreenCanvas.getContext('2d');
+
+            // Draw players on the offscreen canvas
             for (const playerId in heatmapData) {
                 const playerData = heatmapData[playerId];
                 let x = playerData.x;
@@ -43,7 +50,40 @@
                 x = (x + 1100) / 2900 * canvas.width;
                 z = (z + 850) / 3050 * canvas.height;
 
-                console.log(`Drawing player ${playerId} at (${x}, ${z})`);
+                // Draw a small circle for each player
+                offscreenCtx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+                offscreenCtx.beginPath();
+                offscreenCtx.arc(x, z, 10, 0, 2 * Math.PI);
+                offscreenCtx.fill();
+            }
+
+            // Get the density data from the offscreen canvas
+            const densityData = offscreenCtx.getImageData(0, 0, canvas.width, canvas.height);
+
+            // Draw the heatmap based on density
+            for (let i = 0; i < densityData.data.length; i += 4) {
+                const alpha = densityData.data[i + 3];
+                if (alpha > 0) {
+                    const x = (i / 4) % canvas.width;
+                    const y = Math.floor((i / 4) / canvas.width);
+                    const density = alpha / 255;
+
+                    // Use a color gradient based on density
+                    const color = `rgba(255, ${Math.floor(255 - density * 255)}, ${Math.floor(255 - density * 255)}, ${density})`;
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+            // Draw black outlines and yellow dots for each player
+            for (const playerId in heatmapData) {
+                const playerData = heatmapData[playerId];
+                let x = playerData.x;
+                let z = playerData.z;
+
+                // Normalize coordinates to fit within the canvas
+                x = (x + 1100) / 2900 * canvas.width;
+                z = (z + 850) / 3050 * canvas.height;
 
                 // Draw black outline
                 ctx.fillStyle = 'black';
