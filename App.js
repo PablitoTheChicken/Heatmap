@@ -31,8 +31,8 @@ app.post('/dig-it/heatmap/submit'
 
     for (let i = 0; i < data.length; i += 12) {
         const playerId = data.readFloatBE(i);
-        const x = data.readInt16BE(i + 8);
-        const z = data.readInt16BE(i + 10);
+        const x = data.readInt16LE(i + 8);
+        const z = data.readInt16LE(i + 10);
 
         console.log(playerId, x, z);
         heatmap[playerId] = { x, z };
