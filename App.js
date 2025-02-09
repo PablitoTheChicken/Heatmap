@@ -40,6 +40,7 @@ app.post('/submit', (req, res) => {
 app.delete('/remove', (req, res) => {
     const playerId = req.body.id;
     if (heatmap[playerId]) {
+        console.log(`Removing player ${playerId} from heatmap`);
         delete heatmap[playerId];
         res.json({ message: `Player ${playerId} removed from heatmap` });
     } else {
