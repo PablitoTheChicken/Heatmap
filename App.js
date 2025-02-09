@@ -25,15 +25,19 @@ app.get('/dig-it/heatmap/data', (req, res) => {
 });
 
 app.post('/dig-it/heatmap/submit', express.raw({ type: '*/*' }), (req, res) => {
-    const data = req.body;
-    console.log(data);
+    const data = Buffer.from(req.body); // Ensure it's a Buffer
+
+    console.log(data); // Debugging: check if it's a Buffer
+
     for (let i = 0; i < data.length; i += 12) {
-        const playerId = data.readDoubleLE(i);
-        const x = data.readInt16LE(i + 8);
-        const z = data.readInt16LE(i + 10);
+        const playerId = data.readDoubleLE(i); // Reads a double (8 bytes)
+        const x = data.readInt16LE(i + 8);     // Reads a short (2 bytes)
+        const z = data.readInt16LE(i + 10);    // Reads a short (2 bytes)
+
         console.log(playerId, x, z);
         heatmap[playerId] = { x, z };
     }
+
     res.json({ message: "Ok" });
 });
 
