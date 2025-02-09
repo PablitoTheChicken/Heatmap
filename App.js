@@ -24,15 +24,15 @@ app.get('/dig-it/heatmap/data', (req, res) => {
     res.json(heatmap);
 });
 
-app.post('/dig-it/heatmap/submit', express.raw({ type: '*/*' }), (req, res) => {
-    const data = Buffer.from(req.body); // Ensure it's a Buffer
-
-    console.log(data); // Debugging: check if it's a Buffer
+app.post('/dig-it/heatmap/submit', express.raw({ type: 'application/octet-stream' })
+, (req, res) => {
+    const data = req.body;
+    console.log(data);
 
     for (let i = 0; i < data.length; i += 12) {
-        const playerId = data.readDoubleLE(i); // Reads a double (8 bytes)
-        const x = data.readInt16LE(i + 8);     // Reads a short (2 bytes)
-        const z = data.readInt16LE(i + 10);    // Reads a short (2 bytes)
+        const playerId = data.readDoubleLE(i);
+        const x = data.readInt16LE(i + 8);
+        const z = data.readInt16LE(i + 10);
 
         console.log(playerId, x, z);
         heatmap[playerId] = { x, z };
@@ -41,7 +41,8 @@ app.post('/dig-it/heatmap/submit', express.raw({ type: '*/*' }), (req, res) => {
     res.json({ message: "Ok" });
 });
 
-app.post('/dig-it/heatmap/remove', express.raw({ type: '*/*' }), (req, res) => {
+app.post('/dig-it/heatmap/remove', express.raw({ type: 'application/octet-stream' })
+, (req, res) => {
     const playerId = req.body.readDoubleLE(0);
     delete heatmap[playerId];
     res.json({ message: "Ok" });
