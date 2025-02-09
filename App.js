@@ -26,10 +26,12 @@ app.get('/dig-it/heatmap/data', (req, res) => {
 
 app.post('/dig-it/heatmap/submit', express.raw({ type: '*/*' }), (req, res) => {
     const data = req.body;
+    console.log(data);
     for (let i = 0; i < data.length; i += 12) {
         const playerId = data.readDoubleLE(i);
         const x = data.readInt16LE(i + 8);
         const z = data.readInt16LE(i + 10);
+        console.log(playerId, x, z);
         heatmap[playerId] = { x, z };
     }
     res.json({ message: "Ok" });
