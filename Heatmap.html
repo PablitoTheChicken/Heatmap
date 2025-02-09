@@ -11,6 +11,9 @@
         <h2>Heatmap Info</h2>
         <p id="playerCount">Player Count: 0</p>
         <!-- Add more info here as needed -->
+        <input type="text" id="playerSearch" placeholder="Enter Player ID">
+        <button onclick="searchPlayer()">Search</button>
+        <p id="playerCoordinates"></p>
     </div>
     <div id="container">
         <canvas id="heatmapCanvas" width="1000" height="1000"></canvas>
@@ -28,7 +31,7 @@
 
         function clusterPlayers(heatmapData) {
             const clusters = [];
-            const maxDotsPerCluster = 15;
+            const maxDotsPerCluster = 10;
             const clusterRadius = 100;
 
             for (const playerId in heatmapData) {
@@ -90,6 +93,7 @@
             // Get the density data from the offscreen canvas
             const densityData = offscreenCtx.getImageData(0, 0, canvas.width, canvas.height);
 
+            // Draw the heatmap based on density
             for (let i = 0; i < densityData.data.length; i += 4) {
                 const alpha = densityData.data[i + 3];
                 if (alpha > 0) {
@@ -97,6 +101,7 @@
                     const y = Math.floor((i / 4) / canvas.width);
                     const density = alpha / 255;
 
+                    // Use a color gradient based on density
                     const color = `rgba(255, ${Math.floor(255 - density * 255)}, ${Math.floor(255 - density * 255)}, ${density})`;
                     ctx.fillStyle = color;
                     ctx.fillRect(x, y, 1, 1);
@@ -110,19 +115,23 @@
                     let x = playerData.x;
                     let z = playerData.z;
 
+                    // Normalize coordinates to fit within the canvas
                     x = (x + 1100) / 2900 * canvas.width;
                     z = (z + 850) / 3050 * canvas.height;
 
+                    // Draw black outline
                     ctx.fillStyle = 'black';
                     ctx.beginPath();
-                    ctx.arc(x, z, 5, 0, 2 * Math.PI);
+                    ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
                     ctx.fill();
 
+                    // Draw yellow dot
                     ctx.fillStyle = 'yellow';
                     ctx.beginPath();
-                    ctx.arc(x, z, 4, 0, 2 * Math.PI);
+                    ctx.arc(x, z, 4.9, 0, 2 * Math.PI); // 30% smaller than 7
                     ctx.fill();
 
+                    // Store the normalized coordinates for event handling
                     playerData.normalizedX = x;
                     playerData.normalizedZ = z;
                 }
@@ -152,6 +161,16 @@
             const playerInfo = getPlayerInfoAtCoordinates(x, y);
             if (playerInfo) {
                 alert(`Player ID: ${playerInfo.id}, X: ${playerInfo.x}, Z: ${playerInfo.z}`);
+            }
+        }
+
+        function searchPlayer() {
+            const playerId = document.getElementById('playerSearch').value;
+            const playerData = heatmapData[playerId];
+            if (playerData) {
+                document.getElementById('playerCoordinates').innerText = `Player ID: ${playerId}, X: ${playerData.x}, Z: ${playerData.z}`;
+            } else {
+                document.getElementById('playerCoordinates').innerText = 'Player not found';
             }
         }
 
