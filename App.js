@@ -18,10 +18,6 @@ app.get('/', (req, res) => {
 });
 
 app.get('/heatmap', (req, res) => {
-    res.json(heatmap);
-});
-
-app.get('/heatmap-view', (req, res) => {
     res.sendFile(path.join(__dirname, 'Heatmap.html'));
 });
 
