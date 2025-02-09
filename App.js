@@ -37,7 +37,7 @@ app.post('/submit', (req, res) => {
     res.json({ message: "Ok" });
 });
 
-app.delete('/remove', (req, res) => {
+app.post('/remove', (req, res) => {
     const playerId = req.body.id;
     if (heatmap[playerId]) {
         console.log(`Removing player ${playerId} from heatmap`);
