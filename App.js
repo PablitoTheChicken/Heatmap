@@ -2,15 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 
+const port = 80;
+const heatmap = {};
 const app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-const port = 80;
-
-const heatmap = {};
-
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.raw({
+    type: 'application/octet-stream',
+  }));
 
 app.get('/', (req, res) => {
     res.json({ message: "Ok" });
@@ -24,7 +24,7 @@ app.get('/dig-it/heatmap/data', (req, res) => {
     res.json(heatmap);
 });
 
-app.post('/dig-it/heatmap/submit', express.raw({ type: 'application/octet-stream' })
+app.post('/dig-it/heatmap/submit'
 , (req, res) => {
     const data = req.body;
     console.log(data);
@@ -41,9 +41,10 @@ app.post('/dig-it/heatmap/submit', express.raw({ type: 'application/octet-stream
     res.json({ message: "Ok" });
 });
 
-app.post('/dig-it/heatmap/remove', express.raw({ type: 'application/octet-stream' })
+app.post('/dig-it/heatmap/remove'
 , (req, res) => {
-    const playerId = req.body.readDoubleLE(0);
+    const data = req.body;
+    const playerId = data.readDoubleLE(0);
     delete heatmap[playerId];
     res.json({ message: "Ok" });
 });
