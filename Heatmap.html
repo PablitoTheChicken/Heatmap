@@ -26,6 +26,36 @@
             return heatmapData;
         }
 
+        function clusterPlayers(heatmapData) {
+            const clusters = [];
+            const maxDotsPerCluster = 10;
+            const clusterRadius = 100;
+
+            for (const playerId in heatmapData) {
+                const playerData = heatmapData[playerId];
+                let addedToCluster = false;
+
+                for (const cluster of clusters) {
+                    const dx = playerData.x - cluster.x;
+                    const dz = playerData.z - cluster.z;
+                    if (dx * dx + dz * dz <= clusterRadius * clusterRadius) {
+                        cluster.players.push(playerData);
+                        addedToCluster = true;
+                        break;
+                    }
+                }
+
+                if (!addedToCluster) {
+                    clusters.push({ x: playerData.x, z: playerData.z, players: [playerData] });
+                }
+            }
+
+            return clusters.map(cluster => ({
+                ...cluster,
+                players: cluster.players.slice(0, maxDotsPerCluster)
+            }));
+        }
+
         function drawHeatmap(heatmapData) {
             const canvas = document.getElementById('heatmapCanvas');
             const ctx = canvas.getContext('2d');
@@ -75,31 +105,33 @@
                 }
             }
 
-            // Draw black outlines and yellow dots for each player
-            for (const playerId in heatmapData) {
-                const playerData = heatmapData[playerId];
-                let x = playerData.x;
-                let z = playerData.z;
+            // Cluster players and draw black outlines and yellow dots for each player
+            const clusters = clusterPlayers(heatmapData);
+            for (const cluster of clusters) {
+                for (const playerData of cluster.players) {
+                    let x = playerData.x;
+                    let z = playerData.z;
 
-                // Normalize coordinates to fit within the canvas
-                x = (x + 1100) / 2900 * canvas.width;
-                z = (z + 850) / 3050 * canvas.height;
+                    // Normalize coordinates to fit within the canvas
+                    x = (x + 1100) / 2900 * canvas.width;
+                    z = (z + 850) / 3050 * canvas.height;
 
-                // Draw black outline
-                ctx.fillStyle = 'black';
-                ctx.beginPath();
-                ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
-                ctx.fill();
+                    // Draw black outline
+                    ctx.fillStyle = 'black';
+                    ctx.beginPath();
+                    ctx.arc(x, z, 5, 0, 2 * Math.PI); // 30% smaller than 8
+                    ctx.fill();
 
-                // Draw yellow dot
-                ctx.fillStyle = 'yellow';
-                ctx.beginPath();
-                ctx.arc(x, z, 4.9, 0, 2 * Math.PI); // 30% smaller than 7
-                ctx.fill();
+                    // Draw yellow dot
+                    ctx.fillStyle = 'yellow';
+                    ctx.beginPath();
+                    ctx.arc(x, z, 4, 0, 2 * Math.PI); // 30% smaller than 7
+                    ctx.fill();
 
-                // Store the normalized coordinates for event handling
-                playerData.normalizedX = x;
-                playerData.normalizedZ = z;
+                    // Store the normalized coordinates for event handling
+                    playerData.normalizedX = x;
+                    playerData.normalizedZ = z;
+                }
             }
 
             // Update player count
