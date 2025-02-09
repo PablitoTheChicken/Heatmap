@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
     res.json({ message: "Ok" });
 });
 
-app.get('/heatmap', (req, res) => {
+app.get('/dig-it/heatmap', (req, res) => {
     res.sendFile(path.join(__dirname, 'Heatmap.html'));
 });
 
