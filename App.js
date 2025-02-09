@@ -26,7 +26,7 @@ app.get('/dig-it/heatmap/data', (req, res) => {
 
 app.post('/dig-it/heatmap/submit'
 , (req, res) => {
-    const data = req.body;
+    const data = Buffer.from(Object.keys(req.body)[0]);
     console.log(data);
 
     for (let i = 0; i < data.length; i += 12) {
