@@ -50,10 +50,10 @@
                 x = (x + 1100) / 2900 * canvas.width;
                 z = (z + 850) / 3050 * canvas.height;
 
-                // Draw a larger circle for each player
+                // Draw a smaller circle for each player
                 offscreenCtx.fillStyle = 'rgba(255, 0, 0, 0.2)';
                 offscreenCtx.beginPath();
-                offscreenCtx.arc(x, z, 15, 0, 2 * Math.PI);
+                offscreenCtx.arc(x, z, 10.5, 0, 2 * Math.PI); // 30% smaller than 15
                 offscreenCtx.fill();
             }
 
@@ -88,13 +88,13 @@
                 // Draw black outline
                 ctx.fillStyle = 'black';
                 ctx.beginPath();
-                ctx.arc(x, z, 8, 0, 2 * Math.PI);
+                ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
                 ctx.fill();
 
                 // Draw yellow dot
                 ctx.fillStyle = 'yellow';
                 ctx.beginPath();
-                ctx.arc(x, z, 7, 0, 2 * Math.PI);
+                ctx.arc(x, z, 4.9, 0, 2 * Math.PI); // 30% smaller than 7
                 ctx.fill();
 
                 // Store the normalized coordinates for event handling
@@ -111,7 +111,7 @@
                 const playerData = heatmapData[playerId];
                 const dx = x - playerData.normalizedX;
                 const dy = y - playerData.normalizedZ;
-                if (dx * dx + dy * dy <= 49) { // Check if within radius of 7
+                if (dx * dx + dy * dy <= 24.01) { // Check if within radius of 4.9
                     return { id: playerId, x: playerData.x, z: playerData.z };
                 }
             }
