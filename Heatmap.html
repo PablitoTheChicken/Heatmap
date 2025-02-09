@@ -21,7 +21,7 @@
         mapImage.src = 'Map.png';
 
         async function fetchHeatmapData() {
-            const response = await fetch('/heatmap');
+            const response = await fetch('/dig-it/heatmap/data');
             heatmapData = await response.json();
             return heatmapData;
         }

@@ -21,6 +21,10 @@ app.get('/dig-it/heatmap', (req, res) => {
     res.sendFile(path.join(__dirname, 'Heatmap.html'));
 });
 
+app.get('/dig-it/heatmap/data', (req, res) => {
+    res.json(heatmap);
+});
+
 app.post('/submit', (req, res) => {
     const heatmapCollection = req.body;
     console.log(heatmapCollection);
