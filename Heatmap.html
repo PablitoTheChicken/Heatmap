@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heatmap</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        #info {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Heatmap</h1>
+    <canvas id="heatmapCanvas" width="2000" height="2000"></canvas>
+    <div id="info"></div>
+    <script>
+        let heatmapData = {};
+        const mapImage = new Image();
+        mapImage.src = 'Map.png';
+
+        async function fetchHeatmapData() {
+            const response = await fetch('/heatmap');
+            heatmapData = await response.json();
+            return heatmapData;
+        }
+
+        function drawHeatmap(heatmapData) {
+            const canvas = document.getElementById('heatmapCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the map image
+            ctx.drawImage(mapImage, 0, 0, canvas.width, canvas.height);
+
+            for (const playerId in heatmapData) {
+                const playerData = heatmapData[playerId];
+                let x = playerData.x;
+                let z = playerData.z;
+
+                // Normalize coordinates to fit within the canvas
+                x = (x + 1100) / 2900 * canvas.width;
+                z = (z + 850) / 3050 * canvas.height;
+
+                console.log(`Drawing player ${playerId} at (${x}, ${z})`);
+
+                // Draw black outline
+                ctx.fillStyle = 'black';
+                ctx.beginPath();
+                ctx.arc(x, z, 6, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Draw yellow dot
+                ctx.fillStyle = 'yellow';
+                ctx.beginPath();
+                ctx.arc(x, z, 5, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Store the normalized coordinates for event handling
+                playerData.normalizedX = x;
+                playerData.normalizedZ = z;
+            }
+        }
+
+        function getPlayerInfoAtCoordinates(x, y) {
+            for (const playerId in heatmapData) {
+                const playerData = heatmapData[playerId];
+                const dx = x - playerData.normalizedX;
+                const dy = y - playerData.normalizedZ;
+                if (dx * dx + dy * dy <= 25) { // Check if within radius of 5
+                    return { id: playerId, x: playerData.x, z: playerData.z };
+                }
+            }
+            return null;
+        }
+
+        function showPlayerInfo(event) {
+            const canvas = document.getElementById('heatmapCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            const playerInfo = getPlayerInfoAtCoordinates(x, y);
+            if (playerInfo) {
+                alert(`Player ID: ${playerInfo.id}, X: ${playerInfo.x}, Z: ${playerInfo.z}`);
+            }
+        }
+
+        async function updateHeatmap() {
+            const heatmapData = await fetchHeatmapData();
+            drawHeatmap(heatmapData);
+        }
+
+        const canvas = document.getElementById('heatmapCanvas');
+        canvas.addEventListener('click', showPlayerInfo);
+
+        mapImage.onload = () => {
+            setInterval(updateHeatmap, 1000); // Update heatmap every second
+            updateHeatmap(); // Initial update
+        };
+    </script>
+</body>
+</html>
