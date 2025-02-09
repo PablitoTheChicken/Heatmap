@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heatmap</title>
-    <style>
-        canvas {
-            border: 1px solid black;
-        }
-        #info {
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Heatmap</h1>
-    <canvas id="heatmapCanvas" width="2000" height="2000"></canvas>
-    <div id="info"></div>
+    <div id="sidebar">
+        <h2>Heatmap Info</h2>
+        <p id="playerCount">Player Count: 0</p>
+        <!-- Add more info here as needed -->
+    </div>
+    <div id="container">
+        <canvas id="heatmapCanvas" width="1000" height="1000"></canvas>
+    </div>
     <script>
         let heatmapData = {};
         const mapImage = new Image();
@@ -63,6 +61,9 @@
                 playerData.normalizedX = x;
                 playerData.normalizedZ = z;
             }
+
+            // Update player count
+            document.getElementById('playerCount').innerText = `Player Count: ${Object.keys(heatmapData).length}`;
         }
 
         function getPlayerInfoAtCoordinates(x, y) {
