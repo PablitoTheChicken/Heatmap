@@ -31,11 +31,14 @@ app.post('/submit', (req, res) => {
         body = Buffer.concat([body, chunk]);
     });
 
+    console.log(body);
+
     req.on('end', () => {
         for (let i = 0; i < body.length; i += 12) {
             const playerId = body.readDoubleLE(i);
             const x = body.readInt16LE(i + 8);
             const z = body.readInt16LE(i + 10);
+            console.log(playerId, x, z);
             heatmap[playerId] = { x, z };
         }
 
