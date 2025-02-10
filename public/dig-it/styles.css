@@ -91,7 +91,7 @@ canvas:hover {
     display: none;
 }
 
-custom-checkbox .checkmark {
+.custom-checkbox .checkmark {
     width: 20px;
     height: 20px;
     background-color: #eee;
