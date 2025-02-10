@@ -20,14 +20,36 @@
     </div>
     <script>
         let heatmapData = {};
+        let previousHeatmapData = {};
+        let currentHeatmapData = {};
+        let lerpFactor = 0;
         const mapImage = new Image();
         mapImage.src = 'Map.png';
 
         async function fetchHeatmapData() {
             const response = await fetch('/dig-it/heatmap/data');
             const data = await response.json();
-            heatmapData = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, { x: value.x, z: value.z }]));
-            return heatmapData;
+            previousHeatmapData = currentHeatmapData;
+            currentHeatmapData = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, { x: value.x, z: value.z }]));
+            lerpFactor = 0;
+            return currentHeatmapData;
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function interpolateHeatmapData(t) {
+            const interpolatedData = {};
+            for (const playerId in currentHeatmapData) {
+                const currentData = currentHeatmapData[playerId];
+                const previousData = previousHeatmapData[playerId] || currentData;
+                interpolatedData[playerId] = {
+                    x: lerp(previousData.x, currentData.x, t),
+                    z: lerp(previousData.z, currentData.z, t)
+                };
+            }
+            return interpolatedData;
         }
 
         function clusterPlayers(heatmapData) {
@@ -176,16 +198,24 @@
         }
 
         async function updateHeatmap() {
-            const heatmapData = await fetchHeatmapData();
-            drawHeatmap(heatmapData);
+            await fetchHeatmapData();
+        }
+
+        function animate() {
+            lerpFactor += 0.1;
+            if (lerpFactor > 1) lerpFactor = 1;
+            const interpolatedData = interpolateHeatmapData(lerpFactor);
+            drawHeatmap(interpolatedData);
+            requestAnimationFrame(animate);
         }
 
         const canvas = document.getElementById('heatmapCanvas');
         canvas.addEventListener('click', showPlayerInfo);
 
         mapImage.onload = () => {
-            setInterval(updateHeatmap, 1000); // Update heatmap every second
+            setInterval(updateHeatmap, 10000); // Update heatmap every 10 seconds
             updateHeatmap(); // Initial update
+            animate(); // Start animation loop
         };
     </script>
 </body>
