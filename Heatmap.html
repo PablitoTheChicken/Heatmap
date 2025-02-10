@@ -19,6 +19,21 @@
             <span class="checkmark"></span>
             Show Yellow Dots
         </label>
+        <div id="legend">
+            <h3>Legend</h3>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: rgba(255, 0, 0, 1);"></span>
+                <span>High Density</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: rgba(255, 255, 0, 1);"></span>
+                <span>Medium Density</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background-color: rgba(0, 255, 0, 1);"></span>
+                <span>Low Density</span>
+            </div>
+        </div>
     </div>
     <div id="container">
         <canvas id="heatmapCanvas" width="1000" height="1000"></canvas>
@@ -121,6 +136,9 @@
             // Get the density data from the offscreen canvas
             const densityData = offscreenCtx.getImageData(0, 0, canvas.width, canvas.height);
 
+            // Calculate the total player count
+            const totalPlayerCount = Object.keys(heatmapData).length;
+
             // Draw the heatmap based on density
             for (let i = 0; i < densityData.data.length; i += 4) {
                 const alpha = densityData.data[i + 3];
@@ -129,8 +147,11 @@
                     const y = Math.floor((i / 4) / canvas.width);
                     const density = alpha / 255;
 
-                    // Use a color gradient based on density
-                    const color = `rgba(255, ${Math.floor(255 - density * 255)}, ${Math.floor(255 - density * 255)}, ${density})`;
+                    // Calculate the intensity based on the density and total player count
+                    const intensity = Math.min(density * totalPlayerCount, 1);
+
+                    // Use a color gradient based on intensity
+                    const color = getColorFromIntensity(intensity);
                     ctx.fillStyle = color;
                     ctx.fillRect(x, y, 1, 1);
                 }
@@ -176,6 +197,13 @@
 
             // Update player count
             document.getElementById('playerCount').innerText = `Player Count: ${Object.keys(heatmapData).length}`;
+        }
+
+        function getColorFromIntensity(intensity) {
+            const r = Math.floor(255 * intensity);
+            const g = Math.floor(255 * (1 - intensity));
+            const b = 0;
+            return `rgba(${r}, ${g}, ${b}, ${intensity})`;
         }
 
         function getPlayerInfoAtCoordinates(x, y) {

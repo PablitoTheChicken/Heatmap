@@ -123,6 +123,23 @@ canvas:hover {
     display: block;
 }
 
+#legend {
+    margin-top: 20px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+}
+
 @media (max-width: 768px) {
     body {
         flex-direction: column;
