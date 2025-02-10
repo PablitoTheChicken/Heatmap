@@ -42,7 +42,7 @@ app.post('/dig-it/heatmap/update', (req, res) => {
             heatmap.set(playerId, { x, z });
         }
 
-        console.log(heatmap);
+        //console.log(heatmap);
 
         res.json({ message: "Ok" });
     });
