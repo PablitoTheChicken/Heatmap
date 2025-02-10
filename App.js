@@ -2,15 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const port = 80;
-const heatmap = {};
 const app = express();
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.raw());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.raw({
-    type: 'application/octet-stream',
-  }));
+
+const port = 80;
+
+const heatmap = new Map();
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.json({ message: "Ok" });
@@ -21,32 +21,50 @@ app.get('/dig-it/heatmap', (req, res) => {
 });
 
 app.get('/dig-it/heatmap/data', (req, res) => {
-    res.json(heatmap);
+    res.json(
+        Object.fromEntries(heatmap.entries())
+    );
 });
 
-app.post('/dig-it/heatmap/submit'
-, (req, res) => {
-    const data = Buffer.from(Object.keys(req.body)[0]);
-    console.log(data);
+app.post('/dig-it/heatmap/update', (req, res) => {
+    let body = Buffer.alloc(0);
 
-    for (let i = 0; i < data.length; i += 12) {
-        const playerId = data.readFloatBE(i);
-        const x = data.readInt16LE(i + 8);
-        const z = data.readInt16LE(i + 10);
+    req.on('data', (chunk) => {
+        body = Buffer.concat([body, chunk]);
+    });
 
-        console.log(playerId, x, z);
-        heatmap[playerId] = { x, z };
-    }
+    req.on('end', () => {
+        for (let i = 0; i < body.length; i += 12) {
+            const playerId = body.readDoubleLE(i);
+            const x = body.readInt16LE(i + 8);
+            const z = body.readInt16LE(i + 10);
 
-    res.json({ message: "Ok" });
+            heatmap.set(playerId, { x, z });
+        }
+
+        console.log(heatmap);
+
+        res.json({ message: "Ok" });
+    });
 });
 
-app.post('/dig-it/heatmap/remove'
-, (req, res) => {
-    const data = req.body;
-    const playerId = data.readDoubleLE(0);
-    delete heatmap[playerId];
-    res.json({ message: "Ok" });
+app.post('/dig-it/heatmap/remove', (req, res) => {
+    let body = Buffer.alloc(0);
+    
+    req.on('data', (chunk) => {
+        body = Buffer.concat([body, chunk]);
+    });
+
+    req.on('end', () => {
+        for (let i = 0; i < body.length; i += 8) {
+            const playerId = body.readDoubleLE(i);
+            heatmap.delete(playerId);
+        }
+
+        console.log(heatmap);
+
+        res.json({ message: "Ok" });
+    });
 });
 
 app.listen(port, '45.143.196.245', () => {
