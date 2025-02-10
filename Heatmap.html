@@ -25,7 +25,8 @@
 
         async function fetchHeatmapData() {
             const response = await fetch('/dig-it/heatmap/data');
-            heatmapData = await response.json();
+            const data = await response.json();
+            heatmapData = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, { x: value.x, z: value.z }]));
             return heatmapData;
         }
 
