@@ -14,8 +14,9 @@
         <input type="text" id="playerSearch" placeholder="Enter Player ID">
         <button onclick="searchPlayer()">Search</button>
         <p id="playerCoordinates"></p>
-        <label>
+        <label class="custom-checkbox">
             <input type="checkbox" id="toggleYellowDots" checked>
+            <span class="checkmark"></span>
             Show Yellow Dots
         </label>
     </div>
@@ -147,13 +148,13 @@
                     x = (x + 1100) / 2900 * canvas.width;
                     z = (z + 850) / 3050 * canvas.height;
 
-                    // Draw black outline
+                    if (showYellowDots) {
+                                            // Draw black outline
                     ctx.fillStyle = 'black';
                     ctx.beginPath();
                     ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
                     ctx.fill();
-
-                    if (showYellowDots) {
+                    
                         // Draw yellow dot
                         ctx.fillStyle = 'yellow';
                         ctx.beginPath();
