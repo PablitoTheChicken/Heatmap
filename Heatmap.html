@@ -144,6 +144,12 @@
                     let x = playerData.x;
                     let z = playerData.z;
 
+                    // Check if the difference in position is greater than 400 units
+                    if (Math.abs(playerData.x - playerData.previousX) > 400 || Math.abs(playerData.z - playerData.previousZ) > 400) {
+                        playerData.previousX = playerData.x;
+                        playerData.previousZ = playerData.z;
+                    }
+
                     // Normalize coordinates to fit within the canvas
                     x = (x + 1100) / 2900 * canvas.width;
                     z = (z + 850) / 3050 * canvas.height;
