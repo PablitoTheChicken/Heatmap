@@ -213,7 +213,7 @@
         canvas.addEventListener('click', showPlayerInfo);
 
         mapImage.onload = () => {
-            setInterval(updateHeatmap, 10000); // Update heatmap every 10 seconds
+            setInterval(updateHeatmap, 1000); // Update heatmap every 10 seconds
             updateHeatmap(); // Initial update
             animate(); // Start animation loop
         };
