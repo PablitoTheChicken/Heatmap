@@ -27,7 +27,7 @@
         let heatmapData = {};
         let previousHeatmapData = {};
         let currentHeatmapData = {};
-        let lerpFactor = 0;
+        let lastFetchTime = 0;
         const mapImage = new Image();
         mapImage.src = 'Map.png';
 
@@ -36,7 +36,7 @@
             const data = await response.json();
             previousHeatmapData = currentHeatmapData;
             currentHeatmapData = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, { x: value.x, z: value.z }]));
-            lerpFactor = 0;
+            lastFetchTime = performance.now();
             return currentHeatmapData;
         }
 
@@ -59,7 +59,7 @@
 
         function clusterPlayers(heatmapData) {
             const clusters = [];
-            const maxDotsPerCluster = 10;
+            const maxDotsPerCluster = 5;
             const clusterRadius = 35;
 
             for (const playerId in heatmapData) {
@@ -149,12 +149,12 @@
                     z = (z + 850) / 3050 * canvas.height;
 
                     if (showYellowDots) {
-                                            // Draw black outline
-                    ctx.fillStyle = 'black';
-                    ctx.beginPath();
-                    ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
-                    ctx.fill();
-                    
+                        // Draw black outline
+                        ctx.fillStyle = 'black';
+                        ctx.beginPath();
+                        ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
+                        ctx.fill();
+
                         // Draw yellow dot
                         ctx.fillStyle = 'yellow';
                         ctx.beginPath();
@@ -210,26 +210,19 @@
         }
 
         function animate(timestamp) {
-            if (!start) start = timestamp;
-            const progress = timestamp - start;
-            lerpFactor = progress / 3000; // 10 seconds
-
-            if (lerpFactor > 1) {
-                lerpFactor = 1;
-                start = null; // Reset start time for the next animation cycle
-            }
+            const elapsedTime = timestamp - lastFetchTime;
+            const lerpFactor = Math.min(elapsedTime / 10000, 1); // 10 seconds
 
             const interpolatedData = interpolateHeatmapData(lerpFactor);
             drawHeatmap(interpolatedData);
             requestAnimationFrame(animate);
         }
 
-        let start = null;
         const canvas = document.getElementById('heatmapCanvas');
         canvas.addEventListener('click', showPlayerInfo);
 
         mapImage.onload = () => {
-            setInterval(updateHeatmap, 5000); // Update heatmap every 10 seconds
+            setInterval(updateHeatmap, 10000); // Update heatmap every 10 seconds
             updateHeatmap(); // Initial update
             requestAnimationFrame(animate); // Start animation loop
         };
