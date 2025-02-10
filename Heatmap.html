@@ -14,6 +14,10 @@
         <input type="text" id="playerSearch" placeholder="Enter Player ID">
         <button onclick="searchPlayer()">Search</button>
         <p id="playerCoordinates"></p>
+        <label>
+            <input type="checkbox" id="toggleYellowDots" checked>
+            Show Yellow Dots
+        </label>
     </div>
     <div id="container">
         <canvas id="heatmapCanvas" width="1000" height="1000"></canvas>
@@ -133,6 +137,7 @@
 
             // Cluster players and draw black outlines and yellow dots for each player
             const clusters = clusterPlayers(heatmapData);
+            const showYellowDots = document.getElementById('toggleYellowDots').checked;
             for (const cluster of clusters) {
                 for (const playerData of cluster.players) {
                     let x = playerData.x;
@@ -148,11 +153,13 @@
                     ctx.arc(x, z, 5.6, 0, 2 * Math.PI); // 30% smaller than 8
                     ctx.fill();
 
-                    // Draw yellow dot
-                    ctx.fillStyle = 'yellow';
-                    ctx.beginPath();
-                    ctx.arc(x, z, 4.9, 0, 2 * Math.PI); // 30% smaller than 7
-                    ctx.fill();
+                    if (showYellowDots) {
+                        // Draw yellow dot
+                        ctx.fillStyle = 'yellow';
+                        ctx.beginPath();
+                        ctx.arc(x, z, 4.9, 0, 2 * Math.PI); // 30% smaller than 7
+                        ctx.fill();
+                    }
 
                     // Store the normalized coordinates for event handling
                     playerData.normalizedX = x;
@@ -201,21 +208,29 @@
             await fetchHeatmapData();
         }
 
-        function animate() {
-            lerpFactor += 0.1;
-            if (lerpFactor > 1) lerpFactor = 1;
+        function animate(timestamp) {
+            if (!start) start = timestamp;
+            const progress = timestamp - start;
+            lerpFactor = progress / 10000; // 10 seconds
+
+            if (lerpFactor > 1) {
+                lerpFactor = 1;
+                start = null; // Reset start time for the next animation cycle
+            }
+
             const interpolatedData = interpolateHeatmapData(lerpFactor);
             drawHeatmap(interpolatedData);
             requestAnimationFrame(animate);
         }
 
+        let start = null;
         const canvas = document.getElementById('heatmapCanvas');
         canvas.addEventListener('click', showPlayerInfo);
 
         mapImage.onload = () => {
-            setInterval(updateHeatmap, 1000); // Update heatmap every 10 seconds
+            setInterval(updateHeatmap, 10000); // Update heatmap every 10 seconds
             updateHeatmap(); // Initial update
-            animate(); // Start animation loop
+            requestAnimationFrame(animate); // Start animation loop
         };
     </script>
 </body>
