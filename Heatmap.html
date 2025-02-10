@@ -147,8 +147,8 @@
                     const y = Math.floor((i / 4) / canvas.width);
                     const density = alpha / 255;
 
-                    // Calculate the intensity based on the density and total player count
-                    const intensity = Math.min(density * totalPlayerCount / 10, 1);
+                    // Calculate the intensity based on the density
+                    const intensity = Math.min(density, 1);
 
                     // Use a color gradient based on intensity
                     const color = getColorFromIntensity(intensity);
@@ -203,7 +203,7 @@
             const r = Math.floor(255 * intensity);
             const g = Math.floor(255 * (1 - intensity));
             const b = 0;
-            return `rgba(${r}, ${g}, ${b}, 1)`;
+            return `rgba(${r}, ${g}, ${b}, ${intensity})`;
         }
 
         function getPlayerInfoAtCoordinates(x, y) {
