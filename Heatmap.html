@@ -217,7 +217,7 @@
 
         function animate(timestamp) {
             const elapsedTime = timestamp - lastFetchTime;
-            const lerpFactor = Math.min(elapsedTime / 10000, 1); // 10 seconds
+            const lerpFactor = Math.min(elapsedTime / 3000, 1); // 10 seconds
 
             const interpolatedData = interpolateHeatmapData(lerpFactor);
             drawHeatmap(interpolatedData);
@@ -228,7 +228,7 @@
         canvas.addEventListener('click', showPlayerInfo);
 
         mapImage.onload = () => {
-            setInterval(updateHeatmap, 1000); // Update heatmap every 10 seconds
+            setInterval(updateHeatmap, 4000); // Update heatmap every 10 seconds
             updateHeatmap(); // Initial update
             requestAnimationFrame(animate); // Start animation loop
         };
