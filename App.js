@@ -38,6 +38,7 @@ app.post('/dig-it/heatmap/update', (req, res) => {
             const playerId = body.readDoubleLE(i);
             const x = body.readInt16LE(i + 8);
             const z = body.readInt16LE(i + 10);
+            //const state = body.readUint8(i + 12);
 
             heatmap.set(playerId, { x, z });
         }
