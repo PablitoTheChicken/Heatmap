@@ -61,7 +61,7 @@ app.post('/dig-it/heatmap/remove', (req, res) => {
             heatmap.delete(playerId);
         }
 
-        console.log(heatmap);
+       // console.log(heatmap);
 
         res.json({ message: "Ok" });
     });
