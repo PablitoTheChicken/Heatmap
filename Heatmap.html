@@ -1,11 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heatmap</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
 <body>
     <div id="sidebar">
         <h2>Heatmap Info</h2>
@@ -201,21 +193,29 @@
             await fetchHeatmapData();
         }
 
-        function animate() {
-            lerpFactor += 0.1;
-            if (lerpFactor > 1) lerpFactor = 1;
+        function animate(timestamp) {
+            if (!start) start = timestamp;
+            const progress = timestamp - start;
+            lerpFactor = progress / 10000; // 10 seconds
+
+            if (lerpFactor > 1) {
+                lerpFactor = 1;
+                start = null; // Reset start time for the next animation cycle
+            }
+
             const interpolatedData = interpolateHeatmapData(lerpFactor);
             drawHeatmap(interpolatedData);
             requestAnimationFrame(animate);
         }
 
+        let start = null;
         const canvas = document.getElementById('heatmapCanvas');
         canvas.addEventListener('click', showPlayerInfo);
 
         mapImage.onload = () => {
-            setInterval(updateHeatmap, 1000); // Update heatmap every 10 seconds
+            setInterval(updateHeatmap, 10000); // Update heatmap every 10 seconds
             updateHeatmap(); // Initial update
-            animate(); // Start animation loop
+            requestAnimationFrame(animate); // Start animation loop
         };
     </script>
 </body>
