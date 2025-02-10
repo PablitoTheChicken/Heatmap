@@ -217,7 +217,7 @@
 
         function animate(timestamp) {
             const elapsedTime = timestamp - lastFetchTime;
-            const lerpFactor = Math.min(elapsedTime / 3000, 1); // 10 seconds
+            const lerpFactor = Math.min(elapsedTime / 4000, 1); // 10 seconds
 
             const interpolatedData = interpolateHeatmapData(lerpFactor);
             drawHeatmap(interpolatedData);
