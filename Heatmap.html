@@ -40,8 +40,8 @@
                 let addedToCluster = false;
 
                 for (const cluster of clusters) {
-                    const dx = playerData[0] - cluster.x;
-                    const dz = playerData[1] - cluster.z;
+                    const dx = playerData.x - cluster.x;
+                    const dz = playerData.z - cluster.z;
                     if (dx * dx + dz * dz <= clusterRadius * clusterRadius) {
                         cluster.players.push(playerData);
                         addedToCluster = true;
@@ -50,7 +50,7 @@
                 }
 
                 if (!addedToCluster) {
-                    clusters.push({ x: playerData[0], z: playerData[1], players: [playerData] });
+                    clusters.push({ x: playerData.x, z: playerData.z, players: [playerData] });
                 }
             }
 
@@ -77,8 +77,8 @@
             // Draw players on the offscreen canvas
             for (const playerId in heatmapData) {
                 const playerData = heatmapData[playerId];
-                let x = playerData[0];
-                let z = playerData[1];
+                let x = playerData.x;
+                let z = playerData.z;
 
                 // Normalize coordinates to fit within the canvas
                 x = (x + 1100) / 2900 * canvas.width;
@@ -113,8 +113,8 @@
             const clusters = clusterPlayers(heatmapData);
             for (const cluster of clusters) {
                 for (const playerData of cluster.players) {
-                    let x = playerData[0];
-                    let z = playerData[1];
+                    let x = playerData.x;
+                    let z = playerData.z;
 
                     // Normalize coordinates to fit within the canvas
                     x = (x + 1100) / 2900 * canvas.width;
@@ -148,7 +148,7 @@
                 const dx = x - playerData.normalizedX;
                 const dy = y - playerData.normalizedZ;
                 if (dx * dx + dy * dy <= 24.01) { // Check if within radius of 4.9
-                    return { id: playerId, x: playerData[0], z: playerData[1] };
+                    return { id: playerId, x: playerData.x, z: playerData.z };
                 }
             }
             return null;
@@ -161,7 +161,7 @@
             const y = event.clientY - rect.top;
             const playerInfo = getPlayerInfoAtCoordinates(x, y);
             if (playerInfo) {
-                alert(`Player ID: ${playerInfo.id}, X: ${playerInfo[0]}, Z: ${playerInfo[1]}`);
+                alert(`Player ID: ${playerInfo.id}, X: ${playerInfo.x}, Z: ${playerInfo.z}`);
             }
         }
 
@@ -169,7 +169,7 @@
             const playerId = document.getElementById('playerSearch').value;
             const playerData = heatmapData[playerId];
             if (playerData) {
-                document.getElementById('playerCoordinates').innerText = `Player ID: ${playerId}, X: ${playerData[0]}, Z: ${playerData[1]}`;
+                document.getElementById('playerCoordinates').innerText = `Player ID: ${playerId}, X: ${playerData.x}, Z: ${playerData.z}`;
             } else {
                 document.getElementById('playerCoordinates').innerText = 'Player not found';
             }
