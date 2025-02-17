@@ -155,7 +155,7 @@ canvas:hover {
 #feed {
     list-style-type: none;
     padding: 0;
-    margin: 0;
+    margin: 20px 0;
     max-width: 600px;
     width: 100%;
     background-color: #fff;
@@ -167,8 +167,11 @@ canvas:hover {
 }
 
 #feed li {
-    padding: 10px;
+    padding: 15px;
     border-bottom: 1px solid #eee;
+    transition: background-color 0.3s;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 #feed li:last-child {
@@ -181,4 +184,8 @@ canvas:hover {
 
 #feed li:nth-child(even) {
     background-color: #fff;
+}
+
+#feed li:hover {
+    background-color: #f1f1f1;
 }
