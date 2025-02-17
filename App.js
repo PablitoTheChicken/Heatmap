@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const WebSocket = require('ws');
 
 const app = express();
 app.use(express.raw());
@@ -9,6 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const port = 80;
 
 const heatmap = new Map();
+const merchantFeed = [];
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -20,10 +22,45 @@ app.get('/dig-it/heatmap', (req, res) => {
     res.sendFile(path.join(__dirname, 'Heatmap.html'));
 });
 
+app.get('/dig-it/merchant/feed', (req, res) => {
+    res.sendFile(path.join(__dirname, 'MerchantFeed.html'));
+});
+
 app.get('/dig-it/heatmap/data', (req, res) => {
     res.json(
         Object.fromEntries(heatmap.entries())
     );
+});
+
+app.post('/dig-it/merchant/feed/update', (req, res) => {
+    let body = Buffer.alloc(0);
+
+    req.on('data', (chunk) => {
+        body = Buffer.concat([body, chunk]);
+    });
+
+    req.on('end', () => {
+        for (let i = 0; i < body.length; i += 8) {
+            const playerId = body.readDoubleLE(i);
+            const valueSold = body.readUint8(i + 8);
+
+            // Add to merchant feed
+            merchantFeed.push({ playerId, valueSold, timestamp: new Date() });
+            if (merchantFeed.length > 200) {
+                merchantFeed.shift(); // Keep only the 200 most recent interactions
+            }
+
+            // Broadcast to WebSocket clients
+            const message = JSON.stringify({ playerId, valueSold, timestamp: new Date() });
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message);
+                }
+            });
+        }
+
+        res.json({ message: "Ok" });
+    });
 });
 
 app.post('/dig-it/heatmap/update', (req, res) => {
@@ -68,6 +105,17 @@ app.post('/dig-it/heatmap/remove', (req, res) => {
     });
 });
 
-app.listen(port, '45.143.196.245', () => {
+const server = app.listen(port, '45.143.196.245', () => {
     console.log(`Server is running on http://localhost:${port}`);
+});
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+    ws.send(JSON.stringify(merchantFeed)); // Send the current feed to the new client
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
 });

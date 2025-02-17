@@ -1,0 +1,48 @@
+<!-- filepath: /c:/Users/joram/Desktop/Cahoots/Heatmapwef/MerchantFeed.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Feed</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Merchant Feed</h1>
+    <ul id="feed"></ul>
+
+    <script>
+        const feed = document.getElementById('feed');
+        const ws = new WebSocket('ws://45.143.196.245');
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (Array.isArray(data)) {
+                // Initial feed data
+                feed.innerHTML = '';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `Player ID: ${item.playerId}, Value Sold: ${item.valueSold}, Timestamp: ${new Date(item.timestamp).toLocaleString()}`;
+                    feed.appendChild(li);
+                });
+            } else {
+                // New feed item
+                const li = document.createElement('li');
+                li.textContent = `Player ID: ${data.playerId}, Value Sold: ${data.valueSold}, Timestamp: ${new Date(data.timestamp).toLocaleString()}`;
+                feed.insertBefore(li, feed.firstChild);
+                if (feed.children.length > 200) {
+                    feed.removeChild(feed.lastChild);
+                }
+            }
+        };
+
+        ws.onopen = () => {
+            console.log('WebSocket connection established');
+        };
+
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+    </script>
+</body>
+</html>
