@@ -5,6 +5,7 @@ const WebSocket = require('ws');
 
 const app = express();
 app.use(express.raw());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = 80;
