@@ -36,9 +36,9 @@ app.get('/dig-it/heatmap/data', (req, res) => {
 app.post('/dig-it/merchant/feed/update', (req, res) => {
     let body = req.body;
 
+    console.log(body);
     const playerId = body[0];
             const valueSold = body[1];
-            console.log(playerId, valueSold);
 
             // Add to merchant feed
             merchantFeed.push({ playerId, valueSold, timestamp: new Date() });
