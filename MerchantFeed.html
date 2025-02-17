@@ -22,13 +22,13 @@
                 feed.innerHTML = '';
                 data.forEach(item => {
                     const li = document.createElement('li');
-                    li.textContent = `Player ID: ${item.playerId}, Value Sold: ${item.valueSold}, Timestamp: ${new Date(item.timestamp).toLocaleString()}`;
+                    li.textContent = `Player ID: ${item[0]}, Value Sold: ${item[1]}, Timestamp: ${new Date(item[2]).toLocaleString()}`;
                     feed.appendChild(li);
                 });
             } else {
                 // New feed item
                 const li = document.createElement('li');
-                li.textContent = `Player ID: ${data.playerId}, Value Sold: ${data.valueSold}, Timestamp: ${new Date(data.timestamp).toLocaleString()}`;
+                li.textContent = `Player ID: ${data[0]}, Value Sold: ${data[1]}, Timestamp: ${new Date(data[2]).toLocaleString()}`;
                 feed.insertBefore(li, feed.firstChild);
                 if (feed.children.length > 200) {
                     feed.removeChild(feed.lastChild);
