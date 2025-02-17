@@ -36,7 +36,6 @@ app.get('/dig-it/heatmap/data', (req, res) => {
 app.post('/dig-it/merchant/feed/update', (req, res) => {
     let body = req.body;
 
-    console.log(body);
     const playerId = body[0];
             const valueSold = body[1];
 
