@@ -4,12 +4,13 @@ body {
     margin: 0;
     padding: 20px;
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
+    flex-direction: column; /* Change to column layout */
+    align-items: center; /* Center align items */
 }
 
 h1 {
     color: #333;
+    margin-bottom: 20px; /* Add some space below the title */
 }
 
 #container {
@@ -163,7 +164,7 @@ canvas:hover {
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
-    max-height: 400px;
+    max-height: 600px; /* Increase the max height */
 }
 
 #feed li {
