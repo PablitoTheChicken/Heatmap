@@ -106,7 +106,7 @@ app.post('/dig-it/heatmap/remove', (req, res) => {
 });
 
 const server = app.listen(port, '45.143.196.245', () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is running on Cahoots.gg`);
 });
 
 const wss = new WebSocket.Server({ server });
