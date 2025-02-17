@@ -35,14 +35,8 @@ app.get('/dig-it/heatmap/data', (req, res) => {
 app.post('/dig-it/merchant/feed/update', (req, res) => {
     let body = Buffer.alloc(0);
 
-    req.on('data', (chunk) => {
-        body = Buffer.concat([body, chunk]);
-    });
-
-    req.on('end', () => {
-        for (let i = 0; i < body.length; i += 8) {
-            const playerId = body.readDoubleLE(i);
-            const valueSold = body.readUint8(i + 8);
+    const playerId = body[0];
+            const valueSold = body[1];
 
             // Add to merchant feed
             merchantFeed.push({ playerId, valueSold, timestamp: new Date() });
@@ -57,10 +51,8 @@ app.post('/dig-it/merchant/feed/update', (req, res) => {
                     client.send(message);
                 }
             });
-        }
 
-        res.json({ message: "Ok" });
-    });
+     res.json({ message: "Ok" });
 });
 
 app.post('/dig-it/heatmap/update', (req, res) => {
