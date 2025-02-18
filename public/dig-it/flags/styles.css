@@ -1,0 +1,18 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.flag-item {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.flag-item label {
+    margin-left: 10px;
+}

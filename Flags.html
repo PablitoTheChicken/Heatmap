@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flags</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const flagsContainer = document.getElementById('flagsContainer');
+
+    fetch('/dig-it/flags/data')
+        .then(response => response.json())
+        .then(flags => {
+            for (const [flag, value] of Object.entries(flags)) {
+                const flagElement = document.createElement('div');
+                flagElement.classList.add('flag-item');
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = flag;
+                checkbox.checked = value;
+                checkbox.addEventListener('change', () => updateFlag(flag, checkbox.checked));
+
+                const label = document.createElement('label');
+                label.htmlFor = flag;
+                label.innerText = flag;
+
+                flagElement.appendChild(checkbox);
+                flagElement.appendChild(label);
+                flagsContainer.appendChild(flagElement);
+            }
+        });
+
+    function updateFlag(flag, value) {
+        fetch('/dig-it/flags/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ [flag]: value })
+        });
+    }
+});
+    </script>
+</head>
+<body>
+    <h1>Feature Flags</h1>
+    <div id="flagsContainer"></div>
+    <script src="flags.js"></script>
+</body>
+</html>
