@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = 80;
-const AUTH_KEY = 'DIGITAUTHKEY';
+const AUTH_KEY = 'UiSmorbElekNERCITisIVArpArdea';
 
 const heatmap = new Map();
 const merchantFeed = [];
