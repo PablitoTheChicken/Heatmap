@@ -11,6 +11,12 @@
             const addFlagForm = document.getElementById('addFlagForm');
             const addFlagInput = document.getElementById('addFlagInput');
             const addFlagType = document.getElementById('addFlagType');
+            const authKeyInput = document.getElementById('authKeyInput');
+            const savedAuthKey = getCookie('authKey');
+
+            if (savedAuthKey) {
+                authKeyInput.value = savedAuthKey;
+            }
 
             fetch('/dig-it/flags/data')
                 .then(response => response.json())
@@ -50,24 +56,46 @@
             }
 
             function updateFlag(flag, value, type) {
+                const authKey = authKeyInput.value;
+                if (!authKey) {
+                    alert('Please enter the authentication key.');
+                    return;
+                }
+                setCookie('authKey', authKey, 7);
                 fetch('/dig-it/flags/update', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': authKey
                     },
                     body: JSON.stringify({ [flag]: { value, type } })
+                }).then(response => {
+                    if (!response.ok) {
+                        alert('Invalid authentication key.');
+                    }
                 });
             }
 
             function removeFlag(flag, flagElement) {
+                const authKey = authKeyInput.value;
+                if (!authKey) {
+                    alert('Please enter the authentication key.');
+                    return;
+                }
+                setCookie('authKey', authKey, 7);
                 fetch('/dig-it/flags/remove', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': authKey
                     },
                     body: JSON.stringify({ flag })
-                }).then(() => {
-                    flagsContainer.removeChild(flagElement);
+                }).then(response => {
+                    if (response.ok) {
+                        flagsContainer.removeChild(flagElement);
+                    } else {
+                        alert('Invalid authentication key.');
+                    }
                 });
             }
 
@@ -75,6 +103,12 @@
                 event.preventDefault();
                 const flag = addFlagInput.value.trim();
                 const type = addFlagType.value;
+                const authKey = authKeyInput.value;
+                if (!authKey) {
+                    alert('Please enter the authentication key.');
+                    return;
+                }
+                setCookie('authKey', authKey, 7);
                 if (flag) {
                     const value = type === 'boolean' ? true : '';
                     createFlagElement(flag, value, type);
@@ -82,11 +116,37 @@
                     addFlagInput.value = '';
                 }
             });
+
+            function setCookie(name, value, days) {
+                const d = new Date();
+                d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+                const expires = "expires=" + d.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            }
+
+            function getCookie(name) {
+                const cname = name + "=";
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(cname) === 0) {
+                        return c.substring(cname.length, c.length);
+                    }
+                }
+                return "";
+            }
         });
     </script>
 </head>
 <body>
     <h1>Feature Flags</h1>
+    <div>
+        <input type="text" id="authKeyInput" placeholder="Enter authentication key" required>
+    </div>
     <div id="flagsContainer"></div>
     <form id="addFlagForm">
         <input type="text" id="addFlagInput" placeholder="New flag name" required>

@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const port = 80;
+const AUTH_KEY = 'DIGITAUTHKEY';
 
 const heatmap = new Map();
 const merchantFeed = [];
@@ -44,6 +45,10 @@ app.get('/dig-it/flags/data', (req, res) => {
 });
 
 app.post('/dig-it/flags/update', (req, res) => {
+    const authKey = req.headers.authorization;
+    if (authKey !== AUTH_KEY) {
+        return res.status(403).json({ message: "Forbidden" });
+    }
     const newFlags = req.body;
     flagsState = { ...flagsState, ...newFlags };
     fs.writeFileSync(path.join(__dirname, 'flagsState.json'), JSON.stringify(flagsState, null, 2));
@@ -51,6 +56,10 @@ app.post('/dig-it/flags/update', (req, res) => {
 });
 
 app.post('/dig-it/flags/remove', (req, res) => {
+    const authKey = req.headers.authorization;
+    if (authKey !== AUTH_KEY) {
+        return res.status(403).json({ message: "Forbidden" });
+    }
     const { flag } = req.body;
     delete flagsState[flag];
     fs.writeFileSync(path.join(__dirname, 'flagsState.json'), JSON.stringify(flagsState, null, 2));

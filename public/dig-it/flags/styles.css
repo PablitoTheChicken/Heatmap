@@ -38,7 +38,7 @@ h1 {
     cursor: pointer;
 }
 
-flag-item button:hover {
+.flag-item button:hover {
     background-color: #ff1a1a;
 }
 
