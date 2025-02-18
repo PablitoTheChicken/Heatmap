@@ -44,9 +44,17 @@ app.get('/dig-it/flags/data', (req, res) => {
 });
 
 app.post('/dig-it/flags/update', (req, res) => {
-    flagsState = req.body;
+    const newFlags = req.body;
+    flagsState = { ...flagsState, ...newFlags };
     fs.writeFileSync(path.join(__dirname, 'flagsState.json'), JSON.stringify(flagsState, null, 2));
     res.json({ message: "Flags updated" });
+});
+
+app.post('/dig-it/flags/remove', (req, res) => {
+    const { flag } = req.body;
+    delete flagsState[flag];
+    fs.writeFileSync(path.join(__dirname, 'flagsState.json'), JSON.stringify(flagsState, null, 2));
+    res.json({ message: "Flag removed" });
 });
 
 app.post('/dig-it/merchant/feed/update', (req, res) => {
