@@ -29,6 +29,10 @@ app.get('/dig-it/flags', (req, res) => {
     res.sendFile(path.join(__dirname, 'Flags.html'));
 });
 
+app.get('/dig-it/flag/:flag', (req, res) => {
+    res.json({ flag: req.params.flag, state: flagsState[req.params.flag] });
+});
+
 app.get('/dig-it/merchant/feed', (req, res) => {
     res.sendFile(path.join(__dirname, 'MerchantFeed.html'));
 });
