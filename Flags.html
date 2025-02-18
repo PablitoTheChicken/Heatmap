@@ -10,46 +10,52 @@
             const flagsContainer = document.getElementById('flagsContainer');
             const addFlagForm = document.getElementById('addFlagForm');
             const addFlagInput = document.getElementById('addFlagInput');
+            const addFlagType = document.getElementById('addFlagType');
 
             fetch('/dig-it/flags/data')
                 .then(response => response.json())
                 .then(flags => {
-                    for (const [flag, value] of Object.entries(flags)) {
-                        createFlagElement(flag, value);
+                    for (const [flag, { value, type }] of Object.entries(flags)) {
+                        createFlagElement(flag, value, type);
                     }
                 });
 
-            function createFlagElement(flag, value) {
+            function createFlagElement(flag, value, type) {
                 const flagElement = document.createElement('div');
                 flagElement.classList.add('flag-item');
 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = flag;
-                checkbox.checked = value;
-                checkbox.addEventListener('change', () => updateFlag(flag, checkbox.checked));
+                const input = document.createElement('input');
+                input.id = flag;
+                input.value = value;
+                input.type = type === 'boolean' ? 'checkbox' : 'text';
+                if (type === 'boolean') {
+                    input.checked = value;
+                    input.addEventListener('change', () => updateFlag(flag, input.checked, type));
+                } else {
+                    input.addEventListener('change', () => updateFlag(flag, input.value, type));
+                }
 
                 const label = document.createElement('label');
                 label.htmlFor = flag;
-                label.innerText = flag;
+                label.innerText = `${flag} (${type})`;
 
                 const removeButton = document.createElement('button');
                 removeButton.innerText = 'Remove';
                 removeButton.addEventListener('click', () => removeFlag(flag, flagElement));
 
-                flagElement.appendChild(checkbox);
+                flagElement.appendChild(input);
                 flagElement.appendChild(label);
                 flagElement.appendChild(removeButton);
                 flagsContainer.appendChild(flagElement);
             }
 
-            function updateFlag(flag, value) {
+            function updateFlag(flag, value, type) {
                 fetch('/dig-it/flags/update', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ [flag]: value })
+                    body: JSON.stringify({ [flag]: { value, type } })
                 });
             }
 
@@ -68,9 +74,11 @@
             addFlagForm.addEventListener('submit', (event) => {
                 event.preventDefault();
                 const flag = addFlagInput.value.trim();
+                const type = addFlagType.value;
                 if (flag) {
-                    createFlagElement(flag, true);
-                    updateFlag(flag, true);
+                    const value = type === 'boolean' ? true : '';
+                    createFlagElement(flag, value, type);
+                    updateFlag(flag, value, type);
                     addFlagInput.value = '';
                 }
             });
@@ -82,6 +90,11 @@
     <div id="flagsContainer"></div>
     <form id="addFlagForm">
         <input type="text" id="addFlagInput" placeholder="New flag name" required>
+        <select id="addFlagType">
+            <option value="boolean">Boolean</option>
+            <option value="string">String</option>
+            <option value="number">Number</option>
+        </select>
         <button type="submit">Add Flag</button>
     </form>
 </body>
