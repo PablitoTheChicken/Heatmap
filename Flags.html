@@ -36,9 +36,9 @@
                 input.type = type === 'boolean' ? 'checkbox' : 'text';
                 if (type === 'boolean') {
                     input.checked = value;
-                    input.addEventListener('change', () => updateFlag(flag, input.checked, type));
+                    input.addEventListener('change', () => updateFlag(flag, input.checked, type, input));
                 } else {
-                    input.addEventListener('change', () => updateFlag(flag, input.value, type));
+                    input.addEventListener('change', () => updateFlag(flag, input.value, type, input));
                 }
 
                 const label = document.createElement('label');
@@ -55,7 +55,7 @@
                 flagsContainer.appendChild(flagElement);
             }
 
-            function updateFlag(flag, value, type) {
+            function updateFlag(flag, value, type, inputElement) {
                 const authKey = authKeyInput.value;
                 if (!authKey) {
                     alert('Please enter the authentication key.');
@@ -72,6 +72,11 @@
                 }).then(response => {
                     if (!response.ok) {
                         alert('Invalid authentication key.');
+                        if (type === 'boolean') {
+                            inputElement.checked = !value;
+                        } else {
+                            inputElement.value = value;
+                        }
                     }
                 });
             }
