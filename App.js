@@ -31,6 +31,10 @@ app.get('/dig-it/heatmap', (req, res) => {
     res.sendFile(path.join(__dirname, 'Heatmap.html'));
 });
 
+app.get('/dig-it/datastore', (req, res) => {
+    res.sendFile(path.join(__dirname, 'DatastoreViewer.html'));
+});
+
 app.get('/dig-it/flags', (req, res) => {
     res.sendFile(path.join(__dirname, 'Flags.html'));
 });
