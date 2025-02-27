@@ -23,10 +23,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/dig-it', (req, res) => {
-   //redirect to url
+    // Redirect to URL
     res.redirect('https://www.roblox.com/games/76455837887178/Dig-it-RELICA');
-}
-);
+});
 
 app.get('/dig-it/heatmap', (req, res) => {
     res.sendFile(path.join(__dirname, 'Heatmap.html'));
