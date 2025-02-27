@@ -2,12 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
 const WebSocket = require('ws');
 
 const app = express();
 app.use(express.raw());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 const port = 80;
 const AUTH_KEY = 'UiSmorbElekNERCITisIVArpArdea';
