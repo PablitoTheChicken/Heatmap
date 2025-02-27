@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const WebSocket = require('ws');
+const fetch = require('node-fetch');
 
 const app = express();
 app.use(express.raw());
@@ -140,6 +141,29 @@ app.post('/dig-it/heatmap/remove', (req, res) => {
 
         res.json({ message: "Ok" });
     });
+});
+
+// Proxy endpoint to fetch data from Roblox Datastore API
+app.post('/fetchData', async (req, res) => {
+    const { entryKey } = req.body;
+    const url = 'https://apis.roblox.com/datastores/v1/universes/6705549208/standard-datastores/datastore/entries/entry';
+    const params = new URLSearchParams({
+        datastoreName: 'PROFILE_0',
+        entryKey: entryKey
+    });
+
+    try {
+        const response = await fetch(`${url}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'x-api-key': 'yoz1WvylaU2AuKwIuVHc5H1lj6Lcmjq1rhkpxkUBZ92+a57tZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkluTnBaeTB5TURJeExUQTNMVEV6VkRFNE9qVXhPalE1V2lJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaVlYTmxRWEJwUzJWNUlqb2llVzk2TVZkMmVXeGhWVEpCZFV0M1NYVldTR00xU0RGc2FqWk1ZMjFxY1RGeWFHdHdlR3RWUWxvNU1pdGhOVGQwSWl3aWIzZHVaWEpKWkNJNklqRTFPVFF4TXpNeElpd2lZWFZrSWpvaVVtOWliRzk0U1c1MFpYSnVZV3dpTENKcGMzTWlPaUpEYkc5MVpFRjFkR2hsYm5ScFkyRjBhVzl1VTJWeWRtbGpaU0lzSW1WNGNDSTZNVGMwTURZNE5ERTFOeXdpYVdGMElqb3hOelF3Tmpnd05UVTNMQ0p1WW1ZaU9qRTNOREEyT0RBMU5UZDkuWmhNdWZsbnRrb2I0bGE5MEJqeDBNTGd1V0lGY3ZuamFWSUFnZkNkWXFQQXZ6OUgtaXpfVkRKX3RXbWVQVEdhOHFOemdnVUY3SVVzMF8xcDZKVUx3RlZvcDlYZFRlNlk2d2Z6ampJOUVkbXdfTnVobHMxX2YzU1U5dnpYNmtQWWE2a2h2OUktWDAwSE5PaE9yN2FGWVdXZ2dXYlo0M0Jrald4Zm9kNVhVOHVZcVVfMGg4UXpKMGN6SGlrdm1EX1ZPWmIwdG1ZMXZyTTRUa25OdkNsRzlvQXd1akFiRzdCVGx1TWRTZ0xZbFdWNVVkOHVTM1BDZGhITXhUSHlsRklORzNkNGRsd3BaaVl1WkV5eGY4djRwRlNUbXE0THNiMGlqdFFpSm0zZFF3LTRUYmxHZkdJSDZsc1AtTXVQcXlBQm8yeWQ3a0g3OC1zQmpCTERNaTdmNUVn'
+            }
+        });
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 const server = app.listen(port, '45.143.196.245', () => {

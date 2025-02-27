@@ -19,17 +19,13 @@
     <script>
         document.getElementById('fetchData').addEventListener('click', function() {
             const entryKey = document.getElementById('entryKey').value;
-            const url = 'https://apis.roblox.com/datastores/v1/universes/6705549208/standard-datastores/datastore/entries/entry';
-            const params = new URLSearchParams({
-                datastoreName: 'PROFILE_0',
-                entryKey: entryKey
-            });
 
-            fetch(`${url}?${params.toString()}`, {
-                method: 'GET',
+            fetch('http://localhost:3000/fetchData', {
+                method: 'POST',
                 headers: {
-                    'x-api-key': 'yoz1WvylaU2AuKwIuVHc5H1lj6Lcmjq1rhkpxkUBZ92+a57tZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkluTnBaeTB5TURJeExUQTNMVEV6VkRFNE9qVXhPalE1V2lJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaVlYTmxRWEJwUzJWNUlqb2llVzk2TVZkMmVXeGhWVEpCZFV0M1NYVldTR00xU0RGc2FqWk1ZMjFxY1RGeWFHdHdlR3RWUWxvNU1pdGhOVGQwSWl3aWIzZHVaWEpKWkNJNklqRTFPVFF4TXpNeElpd2lZWFZrSWpvaVVtOWliRzk0U1c1MFpYSnVZV3dpTENKcGMzTWlPaUpEYkc5MVpFRjFkR2hsYm5ScFkyRjBhVzl1VTJWeWRtbGpaU0lzSW1WNGNDSTZNVGMwTURZNE5ERTFOeXdpYVdGMElqb3hOelF3Tmpnd05UVTNMQ0p1WW1ZaU9qRTNOREEyT0RBMU5UZDkuWmhNdWZsbnRrb2I0bGE5MEJqeDBNTGd1V0lGY3ZuamFWSUFnZkNkWXFQQXZ6OUgtaXpfVkRKX3RXbWVQVEdhOHFOemdnVUY3SVVzMF8xcDZKVUx3RlZvcDlYZFRlNlk2d2Z6ampJOUVkbXdfTnVobHMxX2YzU1U5dnpYNmtQWWE2a2h2OUktWDAwSE5PaE9yN2FGWVdXZ2dXYlo0M0Jrald4Zm9kNVhVOHVZcVVfMGg4UXpKMGN6SGlrdm1EX1ZPWmIwdG1ZMXZyTTRUa25OdkNsRzlvQXd1akFiRzdCVGx1TWRTZ0xZbFdWNVVkOHVTM1BDZGhITXhUSHlsRklORzNkNGRsd3BaaVl1WkV5eGY4djRwRlNUbXE0THNiMGlqdFFpSm0zZFF3LTRUYmxHZkdJSDZsc1AtTXVQcXlBQm8yeWQ3a0g3OC1zQmpCTERNaTdmNUVn'
-                }
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ entryKey })
             })
             .then(response => response.json())
             .then(data => {
