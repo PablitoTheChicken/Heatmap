@@ -145,7 +145,12 @@ app.post('/dig-it/heatmap/remove', (req, res) => {
 
 // Proxy endpoint to fetch data from Roblox Datastore API
 app.post('/fetchData', async (req, res) => {
-    const { entryKey } = req.body;
+    const { authKey, entryKey } = req.body;
+
+    if (authKey !== "DIGITSTAFFAUTH") {
+        return res.status(403).json({ message: "Forbidden" });
+    }
+
     const url = 'https://apis.roblox.com/datastores/v1/universes/6705549208/standard-datastores/datastore/entries/entry';
     const params = new URLSearchParams({
         datastoreName: 'PROFILE_0',

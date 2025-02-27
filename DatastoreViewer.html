@@ -13,19 +13,24 @@
             <label for="entryKey">Entry Key:</label>
             <input type="text" id="entryKey" placeholder="Enter the entry key">
         </div>
+        <div class="form-group">
+            <label for="entryKey">Auth:</label>
+            <input type="text" id="authKey" placeholder="Enter the auth key">
+        </div>
         <button id="fetchData">Fetch Data</button>
         <pre id="jsonData" class="json-viewer"></pre>
     </div>
     <script>
         document.getElementById('fetchData').addEventListener('click', function() {
             const entryKey = document.getElementById('entryKey').value;
+            const authKey = document.getElementById('authKey').value;
 
             fetch('http://cahoots.gg/fetchData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ entryKey })
+                body: JSON.stringify({ authKey, entryKey })
             })
             .then(response => response.json())
             .then(data => {
