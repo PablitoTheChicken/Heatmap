@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const { exec } = require("child_process");
 const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const WebSocket = require('ws');
 const fetch = require('node-fetch');
+const { glob } = require("glob");
 
 const app = express();
 app.use(express.raw());
@@ -23,6 +25,44 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
     res.json({ message: "Ok" });
+});
+
+app.post("/download", (req, res) => {
+  const { url, resolution } = req.body;
+
+  let format = "best";
+  if (resolution === "1080") format = "bestvideo[height<=1080]+bestaudio/best";
+  else if (resolution === "720") format = "bestvideo[height<=720]+bestaudio/best";
+  else if (resolution === "480") format = "bestvideo[height<=480]+bestaudio/best";
+
+  const cmd = `yt-dlp -f "${format}" -o "video.%(ext)s" --remux-video mp4 "${url}"`;
+
+  console.log("⏬ Downloading:", url, "with:", cmd);
+
+  exec(cmd, async (err, stdout, stderr) => {
+    if (err) {
+      console.error("yt-dlp error:", stderr);
+      return res.status(500).send("Download failed.");
+    }
+
+    try {
+      const files = await glob("video.*");
+      if (!files || files.length === 0) {
+        return res.status(500).send("No output file found.");
+      }
+
+      const mergedFile = files.find(f => f.endsWith(".mp4") || f.endsWith(".mkv"));
+      if (!mergedFile) return res.status(500).send("Merged file not found.");
+
+      const filepath = path.join(__dirname, mergedFile);
+      res.download(filepath, () => {
+        files.forEach(f => fs.unlinkSync(path.join(__dirname, f)));
+      });
+    } catch (e) {
+      console.error("Error during file search:", e);
+      return res.status(500).send("Internal server error.");
+    }
+  });
 });
 
 app.get('/dig-it', (req, res) => {
