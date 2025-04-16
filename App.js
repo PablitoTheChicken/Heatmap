@@ -28,42 +28,52 @@ app.get('/', (req, res) => {
 });
 
 app.post("/download", (req, res) => {
-  const { url, resolution } = req.body;
-
-  let format = "best";
-  if (resolution === "1080") format = "bestvideo[height<=1080]+bestaudio/best";
-  else if (resolution === "720") format = "bestvideo[height<=720]+bestaudio/best";
-  else if (resolution === "480") format = "bestvideo[height<=480]+bestaudio/best";
-
-  const cmd = `yt-dlp -f "${format}" -o "video.%(ext)s" --remux-video mp4 "${url}"`;
-
-  console.log("⏬ Downloading:", url, "with:", cmd);
-
-  exec(cmd, async (err, stdout, stderr) => {
-    if (err) {
-      console.error("yt-dlp error:", stderr);
-      return res.status(500).send("Download failed.");
+    const { url, resolution, format } = req.body;
+    let cmd = "";
+  
+    if (format === "mp3") {
+      cmd = `yt-dlp -x --audio-format mp3 -o "audio.%(ext)s" "${url}"`;
+    } else {
+      let ytFormat = "best";
+      if (resolution === "1080") ytFormat = "bestvideo[height<=1080]+bestaudio/best";
+      else if (resolution === "720") ytFormat = "bestvideo[height<=720]+bestaudio/best";
+      else if (resolution === "480") ytFormat = "bestvideo[height<=480]+bestaudio/best";
+      cmd = `yt-dlp -f "${ytFormat}" -o "video.%(ext)s" --remux-video mp4 "${url}"`;
     }
-
-    try {
-      const files = await glob("video.*");
-      if (!files || files.length === 0) {
-        return res.status(500).send("No output file found.");
+  
+    console.log("⏬ Downloading:", url, "with:", cmd);
+  
+    exec(cmd, async (err, stdout, stderr) => {
+      if (err) {
+        console.error("yt-dlp error:", stderr);
+        return res.status(500).send("Download failed.");
       }
-
-      const mergedFile = files.find(f => f.endsWith(".mp4") || f.endsWith(".mkv"));
-      if (!mergedFile) return res.status(500).send("Merged file not found.");
-
-      const filepath = path.join(__dirname, mergedFile);
-      res.download(filepath, () => {
-        files.forEach(f => fs.unlinkSync(path.join(__dirname, f)));
-      });
-    } catch (e) {
-      console.error("Error during file search:", e);
-      return res.status(500).send("Internal server error.");
-    }
-  });
-});
+  
+      try {
+        const globPattern = format === "mp3" ? "audio.*" : "video.*";
+        const files = await glob(globPattern);
+  
+        if (!files || files.length === 0) {
+          return res.status(500).send("No output file found.");
+        }
+  
+        const mergedFile = files.find(f =>
+          format === "mp3" ? f.endsWith(".mp3") : (f.endsWith(".mp4") || f.endsWith(".mkv"))
+        );
+  
+        if (!mergedFile) return res.status(500).send("Merged file not found.");
+  
+        const filepath = path.join(__dirname, mergedFile);
+        res.download(filepath, async () => {
+          const cleanup = await glob("{audio.*,video.*}");
+          cleanup.forEach(f => fs.unlinkSync(path.join(__dirname, f)));
+        });
+      } catch (e) {
+        console.error("Error during file search:", e);
+        return res.status(500).send("Internal server error.");
+      }
+    });
+  });  
 
 app.get('/dig-it', (req, res) => {
     // Redirect to URL
