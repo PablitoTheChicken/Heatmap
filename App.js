@@ -65,12 +65,15 @@ app.post("/download", (req, res) => {
     if (isMp3) {
       cmd = `yt-dlp -x --audio-format mp3 -o "${outputName}" "${url}"`;
     } else {
-      let ytFormat = "best";
-      if (resolution === "1080") ytFormat = "bestvideo[height<=1080]+bestaudio/best";
-      else if (resolution === "720") ytFormat = "bestvideo[height<=720]+bestaudio/best";
-      else if (resolution === "480") ytFormat = "bestvideo[height<=480]+bestaudio/best";
-
-      cmd = `yt-dlp -f "${ytFormat}" -o "${outputName}" --merge-output-format mp4 "${url}"`;
+        let ytFormat = "best";
+        if (resolution === "1080")
+          ytFormat = "bv*[height<=1080][ext=mp4]+ba[ext=m4a]/best";
+        else if (resolution === "720")
+          ytFormat = "bv*[height<=720][ext=mp4]+ba[ext=m4a]/best";
+        else if (resolution === "480")
+          ytFormat = "bv*[height<=480][ext=mp4]+ba[ext=m4a]/best";
+        
+        cmd = `yt-dlp -f "${ytFormat}" -o "${outputName}" --merge-output-format mp4 "${url}"`;        
     }
   
     console.log(`⏬ Running: ${cmd}`);
