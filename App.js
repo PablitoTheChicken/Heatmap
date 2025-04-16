@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 
 app.post("/download", (req, res) => {
     const { url, resolution, format } = req.body;
-    let cmd = "";
+    let cmd;
   
     if (format === "mp3") {
       cmd = `yt-dlp -x --audio-format mp3 -o "audio.%(ext)s" "${url}"`;
@@ -38,10 +38,11 @@ app.post("/download", (req, res) => {
       if (resolution === "1080") ytFormat = "bestvideo[height<=1080]+bestaudio/best";
       else if (resolution === "720") ytFormat = "bestvideo[height<=720]+bestaudio/best";
       else if (resolution === "480") ytFormat = "bestvideo[height<=480]+bestaudio/best";
+  
       cmd = `yt-dlp -f "${ytFormat}" -o "video.%(ext)s" --remux-video mp4 "${url}"`;
     }
   
-    console.log("⏬ Downloading:", url, "with:", cmd);
+    console.log(`Running command: ${cmd}`);
   
     exec(cmd, async (err, stdout, stderr) => {
       if (err) {
@@ -50,30 +51,26 @@ app.post("/download", (req, res) => {
       }
   
       try {
-        const globPattern = format === "mp3" ? "audio.*" : "video.*";
-        const files = await glob(globPattern);
+        const pattern = format === "mp3" ? "audio.mp3" : "video.*";
+        const files = await glob(pattern);
   
-        if (!files || files.length === 0) {
+        if (!files.length) {
           return res.status(500).send("No output file found.");
         }
   
-        const mergedFile = files.find(f =>
-          format === "mp3" ? f.endsWith(".mp3") : (f.endsWith(".mp4") || f.endsWith(".mkv"))
-        );
-  
-        if (!mergedFile) return res.status(500).send("Merged file not found.");
-  
-        const filepath = path.join(__dirname, mergedFile);
-        res.download(filepath, async () => {
+        const filePath = path.join(__dirname, files[0]);
+        res.download(filePath, async () => {
+          // Clean up all temp files
           const cleanup = await glob("{audio.*,video.*}");
           cleanup.forEach(f => fs.unlinkSync(path.join(__dirname, f)));
         });
       } catch (e) {
-        console.error("Error during file search:", e);
+        console.error("Error during file handling:", e);
         return res.status(500).send("Internal server error.");
       }
     });
-  });  
+  });
+  
 
 app.get('/dig-it', (req, res) => {
     // Redirect to URL
