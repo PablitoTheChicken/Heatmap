@@ -69,8 +69,8 @@ app.post("/download", (req, res) => {
       if (resolution === "1080") ytFormat = "bestvideo[height<=1080]+bestaudio/best";
       else if (resolution === "720") ytFormat = "bestvideo[height<=720]+bestaudio/best";
       else if (resolution === "480") ytFormat = "bestvideo[height<=480]+bestaudio/best";
-  
-      cmd = `yt-dlp -f "${ytFormat}" -o "${outputName}" --remux-video mp4 "${url}"`;
+
+      cmd = `yt-dlp -f "${ytFormat}" -o "${outputName}" --merge-output-format mp4 "${url}"`;
     }
   
     console.log(`⏬ Running: ${cmd}`);
